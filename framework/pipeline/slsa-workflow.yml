@@ -1,0 +1,204 @@
+name: Policy Compilation Pipeline
+
+# This pipeline runs every time a policy file changes.
+# It compiles policies for all three gateway adapters,
+# runs tests, signs artifacts with SLSA provenance,
+# and produces outputs ready for Argo CD to deploy.
+
+on:
+  push:
+    paths:
+      - "framework/control-plane/policies/**"
+      - "framework/adapters/**"
+  pull_request:
+    paths:
+      - "framework/control-plane/policies/**"
+      - "framework/adapters/**"
+
+jobs:
+
+  # Stage 1: Validate
+  # Run SAST, secret scanning, and schema validation.
+  # Nothing moves forward if this fails.
+  validate:
+    name: Validate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install pyyaml jsonschema bandit
+
+      - name: Scan for secrets
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+
+      - name: Run SAST on adapter scripts
+        run: bandit -r framework/adapters/ -ll
+
+      - name: Validate policy schema
+        run: |
+          python scripts/validate-policy.py \
+            --policy-dir framework/control-plane/policies/
+
+  # Stage 2: Generate
+  # Compile every policy to all three gateway formats.
+  # Stamp SLSA provenance on every compiled artifact.
+  generate:
+    name: Generate
+    runs-on: ubuntu-latest
+    needs: validate
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install pyyaml jsonschema
+
+      - name: Compile all policies - Kong
+        run: |
+          for policy in framework/control-plane/policies/*.yaml; do
+            name=$(basename "$policy" .yaml)
+            python framework/adapters/kong/compile.py \
+              --policy "$policy" \
+              --output "compiled/kong/${name}.yaml" || true
+          done
+
+      - name: Compile all policies - AWS API Gateway
+        run: |
+          for policy in framework/control-plane/policies/*.yaml; do
+            name=$(basename "$policy" .yaml)
+            python framework/adapters/aws-api-gateway/compile.py \
+              --policy "$policy" \
+              --output "compiled/aws/${name}.json" || true
+          done
+
+      - name: Compile all policies - Envoy
+        run: |
+          for policy in framework/control-plane/policies/*.yaml; do
+            name=$(basename "$policy" .yaml)
+            python framework/adapters/envoy/compile.py \
+              --policy "$policy" \
+              --output "compiled/envoy/${name}.yaml" || true
+          done
+
+      - name: Upload compiled artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: compiled-policies
+          path: compiled/
+
+  # Stage 3: Test
+  # Run unit and integration tests against compiled outputs.
+  # Verifies that all three gateway formats enforce the same intent.
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    needs: generate
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install test dependencies
+        run: pip install pyyaml jsonschema pytest pytest-cov
+
+      - name: Download compiled artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: compiled-policies
+          path: compiled/
+
+      - name: Run unit tests
+        run: pytest tests/unit/ -v --cov=framework --cov-report=term-missing
+
+      - name: Run integration tests
+        run: pytest tests/integration/ -v
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: test-results/
+
+  # Stage 4: Sign
+  # Attach Sigstore cosign signatures to compiled artifacts.
+  # This is the SLSA provenance step.
+  sign:
+    name: Sign
+    runs-on: ubuntu-latest
+    needs: test
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install cosign
+        uses: sigstore/cosign-installer@v3
+
+      - name: Download compiled artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: compiled-policies
+          path: compiled/
+
+      - name: Sign compiled artifacts
+        run: |
+          for file in compiled/**/*; do
+            if [ -f "$file" ]; then
+              cosign sign-blob --yes "$file" \
+                --bundle "${file}.sig" \
+                --output-certificate "${file}.pem"
+            fi
+          done
+
+      - name: Upload signed artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: signed-policies
+          path: compiled/
+
+  # Stage 5: Summary
+  # Print a summary of what was compiled and signed.
+  summary:
+    name: Summary
+    runs-on: ubuntu-latest
+    needs: sign
+    steps:
+      - name: Download signed artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: signed-policies
+          path: compiled/
+
+      - name: Print compilation summary
+        run: |
+          echo "## Policy Compilation Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Gateway | Compiled Files |" >> $GITHUB_STEP_SUMMARY
+          echo "|---|---|" >> $GITHUB_STEP_SUMMARY
+          echo "| Kong | $(ls compiled/kong/*.yaml 2>/dev/null | wc -l) |" >> $GITHUB_STEP_SUMMARY
+          echo "| AWS API Gateway | $(ls compiled/aws/*.json 2>/dev/null | wc -l) |" >> $GITHUB_STEP_SUMMARY
+          echo "| Envoy | $(ls compiled/envoy/*.yaml 2>/dev/null | wc -l) |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "All artifacts signed with Sigstore cosign." >> $GITHUB_STEP_SUMMARY

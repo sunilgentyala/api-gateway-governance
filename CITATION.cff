@@ -1,0 +1,36 @@
+cff-version: 1.2.0
+title: "Policy-as-Code Framework for Heterogeneous API Gateway Governance"
+message: "If you use this framework in your research or production environment, please cite it using the metadata below."
+type: software
+authors:
+  - family-names: Gentyala
+    given-names: Sunil
+    orcid: https://orcid.org/0009-0005-2642-3479
+    affiliation: HCLTech
+version: 1.0.0
+date-released: "2026-04-01"
+url: "https://github.com/sunilgentyala/api-gateway-governance"
+license: MIT
+repository-code: "https://github.com/sunilgentyala/api-gateway-governance"
+keywords:
+  - api-gateway
+  - policy-as-code
+  - zero-trust
+  - spiffe
+  - slsa
+  - gitops
+  - workload-identity
+  - engineering-management
+preferred-citation:
+  type: conference-paper
+  title: "Governing Heterogeneous API Gateway Estates Through Policy-as-Code: An Engineering Management Perspective"
+  authors:
+    - family-names: Gentyala
+      given-names: Sunil
+      orcid: https://orcid.org/0009-0005-2642-3479
+  conference:
+    name: "IEEE TEMSCON Global 2026"
+    city: Montreal
+    country: CA
+  year: 2026
+  notes: "Accepted and presented at IEEE TEMSCON Global 2026"

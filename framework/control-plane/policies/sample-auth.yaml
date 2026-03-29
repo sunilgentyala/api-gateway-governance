@@ -1,0 +1,27 @@
+# Authentication Policy - JWT Bearer
+#
+# Enforces JWT authentication on all API endpoints.
+# The same policy compiles to Kong jwt plugin,
+# AWS authorizer configuration, and Envoy JWT filter.
+
+policy:
+  name: api-auth-jwt-standard
+  version: "1.0.0"
+  type: authentication
+  method: jwt-bearer
+  issuer: "https://auth.internal.company.com"
+  audience: "api.company.com"
+  required_claims:
+    - sub
+    - exp
+    - iat
+  clock_skew_tolerance: 30s
+  action_on_failure: reject-401
+  description: >
+    Standard JWT authentication for all internal APIs.
+    Validates issuer, audience, and required claims.
+    Rejects requests without a valid bearer token.
+  tags:
+    - authentication
+    - jwt
+  owner: security-team

@@ -1,0 +1,32 @@
+# Workload Identity Policy
+#
+# This policy replaces static API keys with
+# SPIFFE/SPIRE workload identity certificates.
+#
+# Instead of a service carrying an API key that never rotates,
+# it gets a short-lived X.509 certificate tied to its actual
+# identity on the cluster. Certificates expire automatically.
+# There is nothing to leak, nothing to rotate manually.
+
+policy:
+  name: workload-identity-mtls
+  version: "1.0.0"
+  type: workload-identity
+  auth_method: spiffe-svid
+  certificate_lifetime:
+    production: 30m
+    pipeline: 10m
+  attestation:
+    require_namespace: true
+    require_service_account: true
+    require_image_hash: true
+  fallback: reject
+  description: >
+    Replaces static API keys with SPIFFE/SPIRE workload identity.
+    SPIRE attests Kubernetes namespace, service account, and
+    container image hash before issuing X.509 SVIDs.
+    Mutual TLS is enforced on all service-to-service API calls.
+  tags:
+    - zero-trust
+    - no-static-secrets
+  owner: security-team

@@ -1,0 +1,26 @@
+# Rate Limit Policy - Standard Consumer Tier
+#
+# This is a product-agnostic policy definition.
+# You write it once here. The adapters turn it into
+# Kong plugin YAML, an AWS usage plan, and an Envoy
+# filter chain automatically.
+#
+# Do not edit the compiled outputs in adapters/.
+# Edit this file and let the pipeline recompile.
+
+policy:
+  name: api-rate-limit-standard
+  version: "1.0.0"
+  type: rate-limit
+  scope: per-consumer
+  limit: 100
+  window: 60s
+  action: reject-429
+  description: >
+    Standard rate limit for consumer-facing APIs.
+    Allows 100 requests per consumer per 60-second window.
+    Requests beyond the limit receive a 429 Too Many Requests response.
+  tags:
+    - consumer-facing
+    - standard-tier
+  owner: security-team

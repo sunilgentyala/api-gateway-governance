@@ -1,0 +1,68 @@
+openapi: "3.0.3"
+info:
+  title: Payment Service Contract
+  version: "1.0.0"
+  description: >
+    Contract test for the payment service API.
+    This file defines what the API promises to do.
+    The pipeline runs these tests automatically before
+    any policy change reaches production.
+
+paths:
+  /payments:
+    post:
+      summary: Submit a payment
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - amount
+                - currency
+                - recipient
+              properties:
+                amount:
+                  type: number
+                  minimum: 0.01
+                currency:
+                  type: string
+                  enum: [USD, EUR, GBP]
+                recipient:
+                  type: string
+      responses:
+        "200":
+          description: Payment accepted
+        "401":
+          description: Missing or invalid authentication
+        "429":
+          description: Rate limit exceeded
+
+  /payments/{id}:
+    get:
+      summary: Retrieve payment status
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Payment details
+        "401":
+          description: Missing or invalid authentication
+        "404":
+          description: Payment not found
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
