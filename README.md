@@ -1,171 +1,97 @@
 # Policy-as-Code Framework for Heterogeneous API Gateway Governance
 
+[![CI](https://github.com/sunilgentyala/api-gateway-governance/actions/workflows/ci.yml/badge.svg)](https://github.com/sunilgentyala/api-gateway-governance/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Paper](https://img.shields.io/badge/IEEE-TEMSCON%202026-blue)](docs/)
+[![Paper](https://img.shields.io/badge/IEEE-TEMSCON%202026-blue)](docs/PAPER-CITATION.md)
 [![ORCID](https://img.shields.io/badge/ORCID-0009--0005--2642--3479-green)](https://orcid.org/0009-0005-2642-3479)
+[![Python](https://img.shields.io/badge/Python-3.9%2B-blue)](https://www.python.org/)
+[![Tests](https://img.shields.io/badge/Tests-65%20passing-brightgreen)](#running-tests)
+
+> Companion code, test suite, and evaluation data for the IEEE TEMSCON Global 2026 paper:
+> **"Governing Heterogeneous API Gateway Estates Through Policy-as-Code: An Engineering Management Perspective"**
+> by Sunil Gentyala (Senior Member, IEEE), HCLTech
 
 ---
 
-## What This Is
+## The Problem
 
-Most large enterprises run four or more API gateway products at the same time. AWS API Gateway handles external traffic. Kong runs internal services. Envoy manages service mesh. Each one has its own configuration format, its own policy syntax, and its own idea of what a rate limit looks like.
+Most large enterprises run four or more API gateway products at the same time. AWS API Gateway handles external traffic. Kong runs internal services. Envoy manages service mesh. Each has its own config format, its own policy syntax, its own idea of what a rate limit looks like.
 
-When a security team writes a policy, someone has to translate it into three different formats by hand. All three translations drift. Incidents happen. No one is sure which gateway is actually enforcing what.
-
-This repository contains a working policy-as-code framework that solves that problem. You write a policy once, in a plain format that describes what you want. The adapters in this repo translate it automatically into Kong plugin YAML, an AWS usage plan, and an Envoy filter chain. Argo CD pushes the compiled configs to your gateways. Nobody edits gateway configs by hand.
-
-This was deployed at two production organizations over twelve months. A financial services firm with 2,400 endpoints cut drift incidents by 74% and reduced policy deployment time from 14 days to 87 minutes. A healthcare technology provider with 900 endpoints saw comparable results. 464 static API keys were eliminated across both sites and replaced with SPIFFE/SPIRE workload identity certificates.
+When a security team writes a policy, someone has to translate it into three different formats by hand. All three translations drift. Incidents happen. Nobody is sure which gateway is actually enforcing what.
 
 ---
 
-## The Problem This Solves
+## What This Framework Does
 
-### Before this framework
+Write a policy once in a plain YAML format. The adapters compile it automatically into:
+- Kong plugin YAML
+- AWS API Gateway usage plan JSON
+- Envoy filter chain YAML
 
-```
-Security writes policy
-       |
-       v
-Engineer A translates to Kong YAML     (takes 3 days, may be wrong)
-Engineer B translates to AWS plan      (takes 3 days, slightly different)
-Engineer C translates to Envoy filter  (takes 3 days, also different)
-       |
-       v
-All three drift within weeks
-Configuration review takes 14 days average
-464 API keys floating around with no rotation
-```
+Argo CD delivers all three to production inside 87 minutes. Nobody edits gateway configs by hand. The pipeline signs every artifact with SLSA provenance before it ships.
 
-### After this framework
+---
 
-```
-Security writes one policy file
-       |
-       v
-Adapters compile Kong YAML + AWS plan + Envoy filter automatically
-       |
-       v
-Pipeline signs artifacts with SLSA provenance
-       |
-       v
-Argo CD deploys all three in 87 minutes
-No static credentials. No manual translation. No drift.
-```
+## Production Results
+
+Deployed at two organizations over twelve months:
+
+| Metric | Org A Before | Org A After | Org B Before | Org B After |
+|---|---|---|---|---|
+| Policy Consistency | 61.2% | 97.8% | 73.5% | 96.1% |
+| Lead Time (median) | 14.2 days | **87 minutes** | 9.6 days | **52 minutes** |
+| Drift Incidents/Quarter | 31 | 8 | 18 | 5 |
+| Escape Defects/Quarter | 7 | 1 | 4 | 1 |
+| Static Credentials | 340 | **0** | 124 | **0** |
+
+464 long-lived API keys eliminated. Replaced with SPIFFE/SPIRE workload identity certificates rotating every 30 minutes.
 
 ---
 
 ## Architecture
 
 ```
-┌─────────────────────────────────────────────────────┐
-│                 CONTROL PLANE (Git)                 │
-│  API Catalog  │  Policy Registry  │  Contract Store │
-└─────────────────────────┬───────────────────────────┘
-                          │
-                          ▼
-┌─────────────────────────────────────────────────────┐
-│              ADAPTER COMPILATION LAYER              │
-│  Policy Compilers  │  Contract Validators           │
-└──────┬─────────────────────────────┬────────────────┘
-       │                             │
-       ▼                             ▼
-┌─────────────┐              ┌──────────────┐
-│  DATA PLANE │              │  DATA PLANE  │
-│    (Kong)   │              │    (AWS)     │
-└─────────────┘              └──────────────┘
-       │                             │
-       └──────────────┬──────────────┘
-                      ▼
-          ┌───────────────────────┐
-          │     OBSERVABILITY     │
-          │  Metrics │ Logs │ SLO │
-          └───────────────────────┘
-```
-
----
-
-## Results From Production Deployment
-
-| Metric | Org A Before | Org A After | Org B Before | Org B After |
-|---|---|---|---|---|
-| Policy Consistency | 61.2% | 97.8% | 73.5% | 96.1% |
-| Lead Time (median) | 14.2 days | 87 minutes | 9.6 days | 52 minutes |
-| Drift Incidents/Quarter | 31 | 8 | 18 | 5 |
-| Escape Defects/Quarter | 7 | 1 | 4 | 1 |
-| Static Credentials | 340 | 0 | 124 | 0 |
-
----
-
-## Who This Is For
-
-If you are a security engineer tired of writing the same policy three times in three different syntaxes, this is for you.
-
-If you are an engineering manager trying to get policy deployment time under control, the results section above shows what twelve months of production use looked like.
-
-If you are a researcher studying policy-as-code or zero-trust API governance, the evaluation data and methodology are in the `evaluation/` folder and in the published paper.
-
----
-
-## What Is In This Repo
-
-```
-api-gateway-governance/
-├── README.md                          ← You are reading this
-├── LICENSE                            ← MIT
-├── CITATION.cff                       ← Cite this work in your papers
-│
-├── framework/
-│   ├── control-plane/
-│   │   ├── policies/                  ← Sample policy definitions (human-readable YAML)
-│   │   └── contracts/                 ← Sample OpenAPI contract tests
-│   ├── adapters/
-│   │   ├── kong/                      ← Compiles policies to Kong plugin YAML
-│   │   ├── aws-api-gateway/           ← Compiles policies to AWS usage plans
-│   │   └── envoy/                     ← Compiles policies to Envoy filter chains
-│   └── pipeline/
-│       └── slsa-workflow.yml          ← GitHub Actions CI/CD with SLSA attestation
-│
-├── evaluation/
-│   ├── results-summary.md             ← Full results from both evaluation sites
-│   └── methodology.md                 ← How the study was designed and measured
-│
-├── tests/
-│   ├── unit/                          ← Unit tests for each adapter
-│   └── integration/                   ← End-to-end compilation tests
-│
-├── scripts/
-│   └── validate-policy.sh             ← Quick validation script for new policies
-│
-└── docs/
-    └── PAPER-CITATION.md              ← IEEE TEMSCON 2026 paper reference
+┌──────────────────────────────────────────────────────┐
+│               CONTROL PLANE (Git)                    │
+│  API Catalog  │  Policy Registry  │  Contract Store  │
+└──────────────────────┬───────────────────────────────┘
+                       │  compile + attest
+                       ▼
+┌──────────────────────────────────────────────────────┐
+│           ADAPTER COMPILATION LAYER                  │
+│   Policy Compilers  │  Contract Validators           │
+│   SLSA Provenance   │  Sigstore Cosign               │
+└──────┬──────────────────────┬────────────────────────┘
+       │                      │
+       ▼                      ▼
+┌─────────────┐        ┌─────────────┐        ┌──────────────┐
+│ DATA PLANE  │        │ DATA PLANE  │        │  DATA PLANE  │
+│   (Kong)    │        │   (AWS)     │        │   (Envoy)    │
+└─────────────┘        └─────────────┘        └──────────────┘
+       │                      │                      │
+       └──────────────────────┼──────────────────────┘
+                              ▼
+               ┌──────────────────────────┐
+               │       OBSERVABILITY      │
+               │  Metrics │ Logs │ Traces │
+               └──────────────────────────┘
 ```
 
 ---
 
 ## Quick Start
 
-You do not need Kubernetes or a live gateway to try this. The adapter scripts run locally and show you what they would produce.
-
-### Step 1: Clone the repo
+No Kubernetes required. Everything runs locally.
 
 ```bash
+# Clone
 git clone https://github.com/sunilgentyala/api-gateway-governance.git
 cd api-gateway-governance
-```
 
-### Step 2: Install dependencies
+# Install
+pip install -r requirements.txt
 
-```bash
-pip install pyyaml jsonschema
-```
-
-### Step 3: Write a policy
-
-Open `framework/control-plane/policies/sample-rate-limit.yaml` and look at the format. It is plain English translated into YAML.
-
-### Step 4: Compile it
-
-```bash
+# Compile a sample policy to all three gateway formats
 python framework/adapters/kong/compile.py \
   --policy framework/control-plane/policies/sample-rate-limit.yaml \
   --output /tmp/kong-output.yaml
@@ -179,59 +105,145 @@ python framework/adapters/envoy/compile.py \
   --output /tmp/envoy-output.yaml
 ```
 
-### Step 5: Run the tests
+---
+
+## Running Tests
 
 ```bash
-python -m pytest tests/ -v
+pytest tests/ -v
 ```
 
-You should see all tests pass, confirming that the three outputs enforce the same intent.
+65 tests across 3 adapter modules. All pass. The integration tests verify that all three adapters enforce the same intent from the same source policy.
+
+```
+tests/unit/test_kong_adapter.py         ← 21 tests
+tests/unit/test_aws_adapter.py          ← 13 tests
+tests/unit/test_envoy_adapter.py        ← 20 tests
+tests/integration/test_cross_adapter_consistency.py  ← 11 tests
+```
 
 ---
 
 ## The Policy Format
 
-A policy file looks like this:
-
 ```yaml
-# framework/control-plane/policies/sample-rate-limit.yaml
 policy:
   name: api-rate-limit-standard
+  version: "1.0.0"
   type: rate-limit
   scope: per-consumer
   limit: 100
   window: 60s
   action: reject-429
   description: Standard rate limit for consumer-facing APIs
+  owner: security-team
 ```
 
-That one file compiles to all three gateway formats. The adapters handle the translation. You never touch Kong YAML, AWS usage plans, or Envoy filter chains directly.
+One file. Three gateway configs. Zero hand-editing.
 
 ---
 
 ## Workload Identity
 
-This framework uses SPIFFE/SPIRE for workload identity. No API keys. No static secrets. Certificates rotate automatically every 30 minutes in production and every 10 minutes in pipeline stages.
+No API keys. Every service gets a SPIFFE/SPIRE X.509 certificate tied to its actual cluster identity. Certificates expire in 30 minutes in production, 10 minutes in pipeline stages. When a cert expires, the workload gets a new one automatically.
 
-If you are new to SPIFFE, the short version is: instead of giving a service an API key (which someone might copy, share, or forget to rotate), SPIFFE gives it a short-lived certificate tied to its actual identity on the cluster. The certificate expires before anyone can do much damage with it.
+```yaml
+policy:
+  name: workload-identity-mtls
+  type: workload-identity
+  auth_method: spiffe-svid
+  certificate_lifetime:
+    production: 30m
+    pipeline: 10m
+```
 
-See `framework/control-plane/policies/sample-workload-identity.yaml` for a working example.
+---
+
+## Repo Structure
+
+```
+api-gateway-governance/
+├── .github/workflows/ci.yml           ← GitHub Actions CI (runs 65 tests on every push)
+├── README.md
+├── LICENSE                            ← MIT
+├── CITATION.cff                       ← Academic citation metadata
+├── requirements.txt
+├── conftest.py
+│
+├── framework/
+│   ├── control-plane/
+│   │   ├── policies/                  ← sample-rate-limit.yaml, sample-auth.yaml,
+│   │   │                                sample-workload-identity.yaml
+│   │   └── contracts/                 ← payment-service-contract.yaml
+│   ├── adapters/
+│   │   ├── kong/compile.py
+│   │   ├── aws-api-gateway/compile.py
+│   │   ├── aws_api_gateway/compile.py ← Python-importable copy
+│   │   ├── envoy/compile.py
+│   │   └── README.md                  ← How to add new adapters
+│   └── pipeline/
+│       └── slsa-workflow.yml          ← 6-stage SLSA pipeline
+│
+├── evaluation/
+│   ├── results-summary.md             ← Full 12-month results + metric definitions
+│   └── methodology.md                 ← Study design (pre-post quasi-experimental)
+│
+├── tests/
+│   ├── unit/
+│   │   ├── test_kong_adapter.py       ← 21 unit tests
+│   │   ├── test_aws_adapter.py        ← 13 unit tests
+│   │   └── test_envoy_adapter.py      ← 20 unit tests
+│   └── integration/
+│       └── test_cross_adapter_consistency.py  ← 11 cross-adapter tests
+│
+├── scripts/
+│   ├── validate-policy.py             ← Schema validator (used in CI)
+│   └── validate-policy.sh             ← Local pre-push validation
+│
+└── docs/
+    └── PAPER-CITATION.md              ← IEEE citation + BibTeX
+```
+
+---
+
+## Adding a New Adapter
+
+Adapters follow a simple interface. See `framework/adapters/README.md` for the full spec. In short:
+
+```python
+def compile(policy: dict) -> dict:
+    """
+    Input:  policy dict loaded from the YAML 'policy' key
+    Output: dict to be serialized as the gateway's native config
+            Must include _source_policy, _compiled_by, _do_not_edit keys
+    """
+```
+
+Community contributions for Azure APIM, Apigee, and Nginx are welcome.
 
 ---
 
 ## Related Paper
 
-This framework was published and evaluated in:
+> Sunil Gentyala, "Governing Heterogeneous API Gateway Estates Through Policy-as-Code: An Engineering Management Perspective," in *Proc. IEEE TEMSCON Global 2026*, Montreal, Canada, 2026.
 
-> Sunil Gentyala, "Governing Heterogeneous API Gateway Estates Through Policy-as-Code: An Engineering Management Perspective," IEEE TEMSCON Global 2026.
-
-Full citation and DOI in `docs/PAPER-CITATION.md` once the paper is published in IEEE Xplore.
+Full citation, BibTeX block, and IEEE Xplore DOI (once published) in [`docs/PAPER-CITATION.md`](docs/PAPER-CITATION.md).
 
 ---
 
-## Contributing
+## How to Cite This Repo
 
-Pull requests are welcome. If you write an adapter for a gateway product not covered here (Azure APIM, Apigee, Nginx), please open a PR. The adapter interface is documented in `framework/adapters/README.md`.
+Use the [`CITATION.cff`](CITATION.cff) file, or:
+
+```bibtex
+@software{gentyala2026apigateway,
+  author  = {Gentyala, Sunil},
+  title   = {Policy-as-Code Framework for Heterogeneous API Gateway Governance},
+  year    = {2026},
+  url     = {https://github.com/sunilgentyala/api-gateway-governance},
+  license = {MIT}
+}
+```
 
 ---
 
@@ -247,4 +259,4 @@ LinkedIn: [linkedin.com/in/sunil-gentyala](https://linkedin.com/in/sunil-gentyal
 
 ## License
 
-MIT. See [LICENSE](LICENSE) for details.
+MIT. See [LICENSE](LICENSE).
