@@ -3,34 +3,65 @@ title: "Policy-as-Code Framework for Heterogeneous API Gateway Governance"
 message: "If you use this framework in your research or production environment, please cite it using the metadata below."
 type: software
 authors:
-  - family-names: Gentyala
-    given-names: Sunil
-    orcid: https://orcid.org/0009-0005-2642-3479
-    affiliation: HCLTech
+- family-names: Gentyala
+  given-names: Sunil
+  orcid: https://orcid.org/0009-0005-2642-3479
+  affiliation: HCLTech
 version: 1.0.0
 date-released: "2026-04-01"
 url: "https://github.com/sunilgentyala/api-gateway-governance"
 license: MIT
 repository-code: "https://github.com/sunilgentyala/api-gateway-governance"
 keywords:
-  - api-gateway
-  - policy-as-code
-  - zero-trust
-  - spiffe
-  - slsa
-  - gitops
-  - workload-identity
-  - engineering-management
+- api-gateway
+- policy-as-code
+- zero-trust
+- spiffe
+- slsa
+- gitops
+- workload-identity
+- engineering-management
+- api-governance
+- multi-cloud
+abstract: "A policy-as-code framework for governing heterogeneous API gateway estates.
+  Write security and rate-limit policies once in a unified YAML format; adapter
+  compilers translate them into Kong plugin YAML, AWS API Gateway usage plans, and
+  Envoy filter chains automatically. Includes SPIFFE/SPIRE workload identity
+  (eliminating static API keys), a six-stage CI/CD pipeline with SLSA provenance
+  attestation, and GitOps reconciliation via Argo CD. Validated over twelve months
+  at two production organizations (financial services and healthcare technology),
+  reducing policy drift incidents by 74% and cutting deployment lead time from
+  two weeks to 87 minutes."
 preferred-citation:
   type: conference-paper
   title: "Governing Heterogeneous API Gateway Estates Through Policy-as-Code: An Engineering Management Perspective"
   authors:
-    - family-names: Gentyala
-      given-names: Sunil
-      orcid: https://orcid.org/0009-0005-2642-3479
+  - family-names: Gentyala
+    given-names: Sunil
+    orcid: https://orcid.org/0009-0005-2642-3479
+    affiliation: HCLTech
   conference:
-    name: "IEEE TEMSCON Global 2026"
+    name: "IEEE Technology and Engineering Management Society Conference - Global (TEMSCON Global)"
     city: Montreal
     country: CA
   year: 2026
-  notes: "Accepted and presented at IEEE TEMSCON Global 2026"
+  month: 2026
+  collection-title: "Proceedings of IEEE TEMSCON Global 2026"
+  publisher: IEEE
+  track: "Short Paper - Practitioner Track"
+  status: accepted
+  identifiers:
+  - type: other
+    value: "EDAS:1571270844"
+    description: "EDAS submission ID (paper #145)"
+  notes: "Accepted. IEEE Xplore DOI pending publication of proceedings."
+  keywords:
+  - API governance
+  - policy-as-code
+  - zero-trust security
+  - workload identity
+  - GitOps
+  - SPIFFE
+  - SLSA
+  - multi-cloud
+  - engineering management
