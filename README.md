@@ -1,11 +1,6 @@
 # Policy-as-Code Framework for Heterogeneous API Gateway Governance
 
-[![CI](https://github.com/sunilgentyala/api-gateway-governance/actions/workflows/ci.yml/badge.svg)](https://github.com/sunilgentyala/api-gateway-governance/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Paper](https://img.shields.io/badge/IEEE-TEMSCON%202026-blue)](docs/PAPER-CITATION.md)
-[![ORCID](https://img.shields.io/badge/ORCID-0009--0005--2642--3479-green)](https://orcid.org/0009-0005-2642-3479)
-[![Python](https://img.shields.io/badge/Python-3.9%2B-blue)](https://www.python.org/)
-[![Tests](https://img.shields.io/badge/Tests-65%20passing-brightgreen)](#running-tests)
+[![CI](https://github.com/sunilgentyala/api-gateway-governance/actions/workflows/ci.yml/badge.svg)](https://github.com/sunilgentyala/api-gateway-governance/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![Paper](https://img.shields.io/badge/IEEE-TEMSCON%20Global%202026-blue)](docs/PAPER-CITATION.md) [![Status](https://img.shields.io/badge/Paper%20Status-Accepted%20%E2%9C%85-brightgreen)](docs/PAPER-CITATION.md) [![Track](https://img.shields.io/badge/Track-Short%20Paper%20%E2%80%93%20Practitioner-orange)](docs/PAPER-CITATION.md) [![ORCID](https://img.shields.io/badge/ORCID-0009--0005--2642--3479-green)](https://orcid.org/0009-0005-2642-3479) [![Python](https://img.shields.io/badge/Python-3.9%2B-blue)](https://www.python.org/) [![Tests](https://img.shields.io/badge/Tests-65%20passing-brightgreen)](#running-tests)
 
 > Companion code, test suite, and evaluation data for the IEEE TEMSCON Global 2026 paper:
 > **"Governing Heterogeneous API Gateway Estates Through Policy-as-Code: An Engineering Management Perspective"**
