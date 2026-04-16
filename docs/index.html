@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>API Gateway Governance · IEEE TEMSCON 2026</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f8f9fa; color: #1a1a2e; line-height: 1.6; }
+
+  /* NAV */
+  nav { background: #0a1628; color: #fff; padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 56px; position: sticky; top: 0; z-index: 100; }
+  nav .brand { font-weight: 700; font-size: 1rem; letter-spacing: .03em; }
+  nav .brand span { color: #4fc3f7; }
+  nav a { color: #cdd6f4; text-decoration: none; font-size: .875rem; margin-left: 1.5rem; }
+  nav a:hover { color: #fff; }
+
+  /* HERO */
+  .hero { background: linear-gradient(135deg, #0a1628 0%, #16213e 60%, #0f3460 100%); color: #fff; padding: 5rem 2rem 4rem; text-align: center; }
+  .hero .badge { display: inline-block; background: rgba(79,195,247,.15); border: 1px solid rgba(79,195,247,.4); color: #4fc3f7; font-size: .75rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; padding: .3rem .8rem; border-radius: 2rem; margin-bottom: 1.5rem; }
+  .hero h1 { font-size: clamp(1.5rem,4vw,2.6rem); font-weight: 800; max-width: 780px; margin: 0 auto 1rem; line-height: 1.2; }
+  .hero h1 em { font-style: normal; color: #4fc3f7; }
+  .hero p { color: #94a3b8; max-width: 600px; margin: 0 auto 2rem; font-size: 1.05rem; }
+  .hero-badges { display: flex; flex-wrap: wrap; gap: .6rem; justify-content: center; margin-bottom: 2rem; }
+  .hero-badges img { height: 22px; }
+  .hero-actions { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; }
+  .btn { display: inline-flex; align-items: center; gap: .4rem; padding: .65rem 1.4rem; border-radius: 6px; font-size: .9rem; font-weight: 600; text-decoration: none; transition: all .2s; }
+  .btn-primary { background: #4fc3f7; color: #0a1628; }
+  .btn-primary:hover { background: #81d4fa; }
+  .btn-outline { background: transparent; color: #fff; border: 1.5px solid rgba(255,255,255,.3); }
+  .btn-outline:hover { border-color: #4fc3f7; color: #4fc3f7; }
+
+  /* METRICS */
+  .section { padding: 4rem 2rem; }
+  .section-inner { max-width: 1100px; margin: 0 auto; }
+  .section-title { text-align: center; font-size: 1.6rem; font-weight: 700; margin-bottom: .5rem; }
+  .section-sub { text-align: center; color: #64748b; margin-bottom: 2.5rem; font-size: .95rem; }
+  .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; }
+  .metric-card { background: #fff; border-radius: 12px; padding: 1.5rem; text-align: center; box-shadow: 0 1px 4px rgba(0,0,0,.08); border-top: 3px solid #4fc3f7; }
+  .metric-card .before { font-size: .8rem; color: #94a3b8; text-transform: uppercase; letter-spacing: .06em; }
+  .metric-card .arrow { font-size: 1.5rem; color: #4fc3f7; margin: .3rem 0; }
+  .metric-card .after { font-size: 1.8rem; font-weight: 800; color: #0f3460; }
+  .metric-card .label { font-size: .85rem; color: #64748b; margin-top: .3rem; }
+  .metric-card.positive .after { color: #16a34a; }
+
+  /* PIPELINE */
+  .pipeline-section { background: #fff; }
+  .pipeline { display: flex; align-items: stretch; gap: 0; overflow-x: auto; padding: 1rem 0; }
+  .stage { flex: 1; min-width: 140px; background: #f1f5f9; border-radius: 10px; padding: 1.2rem 1rem; text-align: center; position: relative; margin: 0 4px; cursor: pointer; transition: all .2s; border: 2px solid transparent; }
+  .stage:hover, .stage.active { background: #0f3460; color: #fff; border-color: #4fc3f7; transform: translateY(-3px); box-shadow: 0 6px 20px rgba(15,52,96,.2); }
+  .stage .num { font-size: .75rem; font-weight: 700; color: #4fc3f7; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .3rem; }
+  .stage:hover .num, .stage.active .num { color: #81d4fa; }
+  .stage .name { font-size: 1rem; font-weight: 700; margin-bottom: .3rem; }
+  .stage .time { font-size: .8rem; color: #94a3b8; }
+  .stage:hover .time, .stage.active .time { color: #cbd5e1; }
+  .stage-arrow { display: flex; align-items: center; color: #94a3b8; font-size: 1.2rem; flex-shrink: 0; }
+  .stage-detail { background: #f1f5f9; border-radius: 10px; padding: 1.5rem; margin-top: 1rem; min-height: 90px; transition: all .3s; }
+  .stage-detail h4 { font-size: 1rem; font-weight: 700; color: #0f3460; margin-bottom: .4rem; }
+  .stage-detail p { color: #475569; font-size: .9rem; }
+  .total-time { text-align: center; margin-top: 1.2rem; padding: .8rem; background: #0f3460; color: #fff; border-radius: 8px; font-weight: 600; }
+  .total-time span { color: #4fc3f7; font-size: 1.2rem; }
+
+  /* ARCHITECTURE */
+  .arch-section { background: #0a1628; color: #e2e8f0; }
+  .arch-section .section-title, .arch-section .section-sub { color: #e2e8f0; }
+  .arch-section .section-sub { color: #94a3b8; }
+  .arch-boxes { display: grid; gap: 1rem; max-width: 700px; margin: 0 auto; }
+  .arch-box { border-radius: 10px; padding: 1.2rem 1.5rem; position: relative; }
+  .arch-box.control { background: rgba(79,195,247,.12); border: 1px solid rgba(79,195,247,.3); }
+  .arch-box.adapter { background: rgba(99,102,241,.12); border: 1px solid rgba(99,102,241,.3); }
+  .arch-box .box-label { font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: #4fc3f7; margin-bottom: .4rem; }
+  .arch-box.adapter .box-label { color: #818cf8; }
+  .arch-box .box-title { font-weight: 700; font-size: 1rem; margin-bottom: .3rem; }
+  .arch-box .box-desc { font-size: .85rem; color: #94a3b8; }
+  .arch-arrow { text-align: center; color: #4fc3f7; font-size: 1.4rem; margin: .2rem 0; }
+  .gateways { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: .8rem; max-width: 700px; margin: 0 auto; }
+  .gw-box { background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1); border-radius: 8px; padding: .9rem; text-align: center; }
+  .gw-box .gw-name { font-weight: 700; font-size: .95rem; color: #e2e8f0; }
+  .gw-box .gw-type { font-size: .75rem; color: #64748b; margin-top: .2rem; }
+
+  /* RESULTS TABLE */
+  .results-section { background: #f8f9fa; }
+  table { width: 100%; border-collapse: collapse; font-size: .9rem; background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+  th { background: #0f3460; color: #fff; padding: .75rem 1rem; text-align: left; font-size: .8rem; letter-spacing: .04em; text-transform: uppercase; }
+  td { padding: .7rem 1rem; border-bottom: 1px solid #f1f5f9; }
+  tr:last-child td { border-bottom: none; }
+  .good { color: #16a34a; font-weight: 700; }
+  .metric-name { font-weight: 600; color: #0f3460; }
+
+  /* FOOTER */
+  footer { background: #0a1628; color: #64748b; text-align: center; padding: 2rem; font-size: .85rem; }
+  footer a { color: #4fc3f7; text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+
+  @media (max-width: 640px) {
+    .pipeline { flex-direction: column; }
+    .stage-arrow { transform: rotate(90deg); margin: 0 auto; }
+    .gateways { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="brand">API Gateway <span>Governance</span></div>
+  <div>
+    <a href="#pipeline">Pipeline</a>
+    <a href="#results">Results</a>
+    <a href="https://github.com/sunilgentyala/api-gateway-governance" target="_blank">GitHub ↗</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="badge">✅ IEEE TEMSCON Global 2026 · Accepted · Practitioner Track</div>
+  <h1>Governing <em>Heterogeneous</em> API Gateway Estates Through Policy-as-Code</h1>
+  <p>Write one policy. Compile to Kong, AWS API Gateway, and Envoy automatically. Deliver all three in 87 minutes.</p>
+  <div class="hero-badges">
+    <img src="https://github.com/sunilgentyala/api-gateway-governance/actions/workflows/ci.yml/badge.svg" alt="CI">
+    <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="MIT">
+    <img src="https://img.shields.io/badge/Paper%20Status-Accepted%20✅-brightgreen" alt="Accepted">
+    <img src="https://img.shields.io/badge/Tests-65%20passing-brightgreen" alt="Tests">
+    <img src="https://img.shields.io/badge/Python-3.9%2B-blue" alt="Python">
+  </div>
+  <div class="hero-actions">
+    <a class="btn btn-primary" href="https://github.com/sunilgentyala/api-gateway-governance" target="_blank">⭐ View on GitHub</a>
+    <a class="btn btn-outline" href="PAPER-CITATION.md">📄 Cite the Paper</a>
+    <a class="btn btn-outline" href="https://github.com/sunilgentyala/api-gateway-governance#quick-start" target="_blank">🚀 Quick Start</a>
+  </div>
+</section>
+
+<!-- METRICS -->
+<section class="section">
+  <div class="section-inner">
+    <div class="section-title">12-Month Production Results</div>
+    <div class="section-sub">Deployed at two organizations: financial services (2,400 endpoints) and healthcare technology (900 endpoints)</div>
+    <div class="metrics-grid">
+      <div class="metric-card positive">
+        <div class="before">Was: 14–31 / quarter</div>
+        <div class="arrow">↓</div>
+        <div class="after">5–8</div>
+        <div class="label">Drift Incidents / Quarter</div>
+      </div>
+      <div class="metric-card positive">
+        <div class="before">Was: 9–14 days</div>
+        <div class="arrow">↓</div>
+        <div class="after">87 min</div>
+        <div class="label">Policy Deployment Lead Time</div>
+      </div>
+      <div class="metric-card positive">
+        <div class="before">Was: 61–73%</div>
+        <div class="arrow">↑</div>
+        <div class="after">96–97%</div>
+        <div class="label">Policy Consistency</div>
+      </div>
+      <div class="metric-card positive">
+        <div class="before">Was: 340 + 124 keys</div>
+        <div class="arrow">→</div>
+        <div class="after">0</div>
+        <div class="label">Static Credentials Remaining</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PIPELINE -->
+<section class="section pipeline-section" id="pipeline">
+  <div class="section-inner">
+    <div class="section-title">6-Stage CI/CD Pipeline</div>
+    <div class="section-sub">Each stage blocks on failure · Git commit → live on all 3 gateways in 87 minutes · Click a stage to learn more</div>
+    <div class="pipeline" id="pipelineRow">
+      <div class="stage active" data-stage="0" onclick="selectStage(0)">
+        <div class="num">Stage 1</div>
+        <div class="name">Validate</div>
+        <div class="time">~8 min</div>
+      </div>
+      <div class="stage-arrow">→</div>
+      <div class="stage" data-stage="1" onclick="selectStage(1)">
+        <div class="num">Stage 2</div>
+        <div class="name">Generate</div>
+        <div class="time">~6 min</div>
+      </div>
+      <div class="stage-arrow">→</div>
+      <div class="stage" data-stage="2" onclick="selectStage(2)">
+        <div class="num">Stage 3</div>
+        <div class="name">Test</div>
+        <div class="time">~35 min</div>
+      </div>
+      <div class="stage-arrow">→</div>
+      <div class="stage" data-stage="3" onclick="selectStage(3)">
+        <div class="num">Stage 4</div>
+        <div class="name">Sign</div>
+        <div class="time">~2 min</div>
+      </div>
+      <div class="stage-arrow">→</div>
+      <div class="stage" data-stage="4" onclick="selectStage(4)">
+        <div class="num">Stage 5</div>
+        <div class="name">Reconcile</div>
+        <div class="time">~28 min</div>
+      </div>
+      <div class="stage-arrow">→</div>
+      <div class="stage" data-stage="5" onclick="selectStage(5)">
+        <div class="num">Stage 6</div>
+        <div class="name">Verify</div>
+        <div class="time">~8 min</div>
+      </div>
+    </div>
+    <div class="stage-detail" id="stageDetail">
+      <h4>Stage 1 · Validate</h4>
+      <p>Runs SAST, Trivy container scan, and secret scanning on the policy source. Any failure stops the pipeline immediately — nothing proceeds until policy source is clean.</p>
+    </div>
+    <div class="total-time">Git commit → live on Kong + AWS + Envoy: <span>87 minutes</span> · Auto-rollback if error-budget burn hits 2×</div>
+  </div>
+</section>
+
+<!-- ARCHITECTURE -->
+<section class="section arch-section">
+  <div class="section-inner">
+    <div class="section-title">Three-Tier Architecture</div>
+    <div class="section-sub">A single policy source compiles to every gateway automatically — no manual editing</div>
+    <div class="arch-boxes" style="margin-bottom:1rem;">
+      <div class="arch-box control">
+        <div class="box-label">Layer 1 · Control Plane</div>
+        <div class="box-title">Git-Backed Policy Store</div>
+        <div class="box-desc">Three repositories: API contracts + OpenAPI specs · Policy definitions (gateway-agnostic YAML) · Compiled outputs (read-only, pipeline-generated)</div>
+      </div>
+    </div>
+    <div class="arch-arrow">↓ compile + SLSA attest</div>
+    <div class="arch-boxes" style="margin-bottom:1rem;">
+      <div class="arch-box adapter">
+        <div class="box-label">Layer 2 · Adapter Compilation</div>
+        <div class="box-title">Policy Compilers + Sigstore Sign</div>
+        <div class="box-desc">Kong adapter · AWS API Gateway adapter · Envoy adapter · SLSA provenance stamp · Sigstore cosign signature</div>
+      </div>
+    </div>
+    <div class="arch-arrow">↓ Argo CD GitOps (60-second reconcile)</div>
+    <div class="gateways">
+      <div class="gw-box">
+        <div class="gw-name">Kong</div>
+        <div class="gw-type">Plugin YAML</div>
+      </div>
+      <div class="gw-box">
+        <div class="gw-name">AWS API GW</div>
+        <div class="gw-type">Usage Plan JSON</div>
+      </div>
+      <div class="gw-box">
+        <div class="gw-name">Envoy</div>
+        <div class="gw-type">Filter Chain YAML</div>
+      </div>
+    </div>
+    <div class="arch-arrow" style="color:#64748b;margin-top:.5rem;">↑ Telemetry · Drift detection within 60 seconds</div>
+  </div>
+</section>
+
+<!-- RESULTS TABLE -->
+<section class="section results-section" id="results">
+  <div class="section-inner">
+    <div class="section-title">Detailed Results</div>
+    <div class="section-sub">Pre-post quasi-experimental design · 3-month baseline · 9-month rollout · Weekly automated metric collection</div>
+    <table>
+      <thead>
+        <tr><th>Metric</th><th>Org A Baseline</th><th>Org A Final</th><th>Org B Baseline</th><th>Org B Final</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="metric-name">Policy Consistency</td><td>61.2%</td><td class="good">97.8%</td><td>73.5%</td><td class="good">96.1%</td></tr>
+        <tr><td class="metric-name">Lead Time (median)</td><td>14.2 days</td><td class="good">87 min</td><td>9.6 days</td><td class="good">52 min</td></tr>
+        <tr><td class="metric-name">Drift Incidents / Quarter</td><td>31</td><td class="good">8</td><td>18</td><td class="good">5</td></tr>
+        <tr><td class="metric-name">Escape Defects / Quarter</td><td>7</td><td class="good">1</td><td>4</td><td class="good">1</td></tr>
+        <tr><td class="metric-name">Static Credentials</td><td>340</td><td class="good">0</td><td>124</td><td class="good">0</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:1rem;font-size:.85rem;color:#94a3b8;text-align:center;">464 long-lived API keys replaced with SPIFFE/SPIRE X.509 certificates rotating every 30 minutes · Zero static secrets remaining in either estate</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p style="margin-bottom:.5rem;">
+    <strong style="color:#e2e8f0;">Sunil Gentyala</strong> (Senior Member, IEEE) · HCLTech ·
+    <a href="https://orcid.org/0009-0005-2642-3479">ORCID 0009-0005-2642-3479</a>
+  </p>
+  <p>
+    IEEE TEMSCON Global 2026 · EDAS Paper #145 (1571270844) · Short Paper – Practitioner Track ·
+    <a href="https://github.com/sunilgentyala/api-gateway-governance">GitHub</a> ·
+    <a href="PAPER-CITATION.md">Cite</a>
+  </p>
+  <p style="margin-top:.5rem;">MIT License · Companion code and evaluation data for the accepted paper</p>
+</footer>
+
+<script>
+const stageData = [
+  { title: "Stage 1 · Validate", desc: "Runs SAST, Trivy container scan, and secret scanning on the policy source. Any failure stops the pipeline immediately — nothing proceeds until the policy source is clean." },
+  { title: "Stage 2 · Generate", desc: "Compiles policies into gateway-native configurations (Kong YAML, AWS usage plan JSON, Envoy filter chain YAML) and stamps SLSA provenance attestation on every output artifact." },
+  { title: "Stage 3 · Test", desc: "Deploys compiled artifacts into ephemeral environments and runs integration tests and DAST (Dynamic Application Security Testing) against them. Longest stage at ~35 minutes." },
+  { title: "Stage 4 · Sign", desc: "Locks all artifacts with Sigstore cosign cryptographic signatures. Any artifact that cannot be verified in the next stage is rejected — no exceptions." },
+  { title: "Stage 5 · Reconcile", desc: "Hands off to Argo CD for GitOps reconciliation. Verifies signatures before touching anything live, then pushes verified configurations to Kong, AWS API Gateway, and Envoy simultaneously." },
+  { title: "Stage 6 · Verify", desc: "Monitors the deployed change for error-budget burn rate. If burn hits 2× threshold, the pipeline triggers an automatic rollback to the last known-good configuration." },
+];
+
+function selectStage(idx) {
+  document.querySelectorAll('.stage').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.stage')[idx * 2] && document.querySelectorAll('.stage')[idx * 2].classList.add('active');
+  // find nth .stage (not arrows)
+  const stages = document.querySelectorAll('.stage');
+  stages.forEach(s => s.classList.remove('active'));
+  stages[idx].classList.add('active');
+  const d = stageData[idx];
+  document.getElementById('stageDetail').innerHTML = `<h4>${d.title}</h4><p>${d.desc}</p>`;
+}
+// init
+selectStage(0);
+</script>
+</body>
+</html>
