@@ -1,4 +1,4 @@
-[PAPER-CITATION.md](https://github.com/user-attachments/files/26791328/PAPER-CITATION.md)
+
 # Paper Citation
 
 This repository is the companion code, test suite, and evaluation data for the following peer-reviewed paper.
