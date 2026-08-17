@@ -10,7 +10,7 @@ This repository is the companion code, test suite, and evaluation data for the f
 | Field | Value |
 |---|---|
 | **Title** | Governing Heterogeneous API Gateway Estates Through Policy-as-Code: An Engineering Management Perspective |
-| **Author** | Sunil Gentyala (Senior Member, IEEE), HCLTech, Dallas TX USA |
+| **Authors** | Sunil Gentyala (Senior Member, IEEE), HCLTech; Floriano Caprio, Università Campus Bio-Medico di Roma; Praveen Kumar Mannam, Salesforce; Angajala Tejaswi, Malla Reddy Engineering College for Women; Rakesh Prakash, Boeing; Akhila Kasturi, HCLTech |
 | **Conference** | IEEE Technology and Engineering Management Society Conference – Global (TEMSCON Global 2026) |
 | **Location** | Montreal, Canada, 2026 |
 | **Track** | Short Paper – Practitioner Track |
@@ -31,13 +31,14 @@ Four API gateway products running at once means four different configuration syn
 
 ### IEEE Format
 
-S. Gentyala, "Governing Heterogeneous API Gateway Estates Through Policy-as-Code: An Engineering Management Perspective," in *Proc. IEEE TEMSCON Global 2026*, Montreal, Canada, 2026.
+S. Gentyala, F. Caprio, P. K. Mannam, A. Tejaswi, R. Prakash, and A. Kasturi, "Governing Heterogeneous API Gateway Estates Through Policy-as-Code: An Engineering Management Perspective," in *Proc. IEEE TEMSCON Global 2026*, Montreal, Canada, 2026.
 
 ### BibTeX
 
 ```bibtex
 @inproceedings{gentyala2026apigateway,
-  author    = {Gentyala, Sunil},
+  author    = {Gentyala, Sunil and Caprio, Floriano and Mannam, Praveen Kumar
+               and Tejaswi, Angajala and Prakash, Rakesh and Kasturi, Akhila},
   title     = {Governing Heterogeneous {API} Gateway Estates Through Policy-as-Code:
                An Engineering Management Perspective},
   booktitle = {Proceedings of IEEE TEMSCON Global 2026},
@@ -52,7 +53,7 @@ S. Gentyala, "Governing Heterogeneous API Gateway Estates Through Policy-as-Code
 
 ### APA Format
 
-Gentyala, S. (2026). Governing heterogeneous API gateway estates through policy-as-code: An engineering management perspective. *Proceedings of IEEE TEMSCON Global 2026*. Montreal, Canada: IEEE.
+Gentyala, S., Caprio, F., Mannam, P. K., Tejaswi, A., Prakash, R., & Kasturi, A. (2026). Governing heterogeneous API gateway estates through policy-as-code: An engineering management perspective. *Proceedings of IEEE TEMSCON Global 2026*. Montreal, Canada: IEEE.
 
 ### For Citing the Code Repository
 

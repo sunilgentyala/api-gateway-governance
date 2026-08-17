@@ -40,6 +40,21 @@ preferred-citation:
     given-names: Sunil
     orcid: https://orcid.org/0009-0005-2642-3479
     affiliation: HCLTech
+  - family-names: Caprio
+    given-names: Floriano
+    affiliation: "Università Campus Bio-Medico di Roma"
+  - family-names: Mannam
+    given-names: "Praveen Kumar"
+    affiliation: Salesforce
+  - family-names: Tejaswi
+    given-names: Angajala
+    affiliation: "Malla Reddy Engineering College for Women"
+  - family-names: Prakash
+    given-names: Rakesh
+    affiliation: Boeing
+  - family-names: Kasturi
+    given-names: Akhila
+    affiliation: HCLTech
   conference:
     name: "IEEE Technology and Engineering Management Society Conference - Global (TEMSCON Global)"
     city: Montreal

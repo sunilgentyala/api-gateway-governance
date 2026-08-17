@@ -4,7 +4,7 @@
 
 > Companion code, test suite, and evaluation data for the IEEE TEMSCON Global 2026 paper:
 > **"Governing Heterogeneous API Gateway Estates Through Policy-as-Code: An Engineering Management Perspective"**
-> by Sunil Gentyala (Senior Member, IEEE), HCLTech
+> by Sunil Gentyala (Senior Member, IEEE), Floriano Caprio, Praveen Kumar Mannam, Angajala Tejaswi, Rakesh Prakash, and Akhila Kasturi
 
 ---
 
@@ -220,7 +220,7 @@ Community contributions for Azure APIM, Apigee, and Nginx are welcome.
 
 ## Related Paper
 
-> Sunil Gentyala, "Governing Heterogeneous API Gateway Estates Through Policy-as-Code: An Engineering Management Perspective," in *Proc. IEEE TEMSCON Global 2026*, Montreal, Canada, 2026.
+> S. Gentyala, F. Caprio, P. K. Mannam, A. Tejaswi, R. Prakash, and A. Kasturi, "Governing Heterogeneous API Gateway Estates Through Policy-as-Code: An Engineering Management Perspective," in *Proc. IEEE TEMSCON Global 2026*, Montreal, Canada, 2026.
 
 Full citation, BibTeX block, and IEEE Xplore DOI (once published) in [`docs/PAPER-CITATION.md`](docs/PAPER-CITATION.md).
 
